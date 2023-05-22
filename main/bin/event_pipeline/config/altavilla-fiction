@@ -1,0 +1,22 @@
+# Config file for event chains pipeline
+
+PIPELINE_NAME=altavilla-fiction
+HUMAN_READABLE_NAME="Altavilla (fiction)"
+
+# Point to a script that will extract the input text for us
+INPUT_EXTRACTOR=1-parse/preprocess/extract_altavilla.sh
+# This is specific to the Altavilla corpus, used by the input extractor
+ALTAVILLA_FILES=(/anfs/bigdisc/mtw29/corpora/altavilla/fiction/*.tar.gz)
+
+# Number of processes to use in any stage
+PROCESSES=12
+
+# Not just protagonists
+PROTAGONIST=
+
+# Split the events files into training, dev and test sets
+EVENTS_POSTPROCESS=3-events/altavilla/postprocess.sh
+# After this splitting, we remove stopevents from the training set. This is not currently part of the pipeline,
+#  so must be done manually
+# Once it's been split, we use the training chapters only as training data for the model
+POSTPROCESSED_CHAINS_FILE=/anfs/bigdisc/mtw29/chains/altavilla-fiction/chains_sets/stopevents/training_chapters.txt

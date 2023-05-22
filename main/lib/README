@@ -1,0 +1,19 @@
+C&C Parser
+==========
+Register at http://svn.ask.it.usyd.edu.au/trac/candc/wiki/Register.
+
+Download http://svn.ask.it.usyd.edu.au/download/candc/candc-linux-1.00.tgz 
+using your password.
+
+Extract the whole archive in this directory.
+
+Download trained models: 
+http://svn.ask.it.usyd.edu.au/download/candc/models-1.02.tbz2
+
+Extract the archive in ../models. Rename the "models" directory it 
+creates to "candc".
+
+Morph
+=====
+Morpha (morphological analyser) is the morpha tool distributed with the 
+Rasp toolkit, available at http://ilexir.co.uk/applications/rasp/download/.

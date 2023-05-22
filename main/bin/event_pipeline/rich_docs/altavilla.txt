@@ -1,0 +1,104 @@
+Extracting rich event representation for Altavilla fiction set
+==============================================================
+
+As with gigaword.txt, this is a list of the commands I've run (after the basic pipeline) to get the rich_docs
+dataset for Altavilla.
+
+
+# Extract tokenized texts to scratch dir:  [Took 2 mins]
+mkdir -p /local/scratch/mtw29/altavilla/tokenized
+cd /anfs/bigdisc/mtw29/chains/altavilla-fiction
+tar -xzf tokenized.tar.gz -C /local/scratch/mtw29/altavilla/tokenized/
+
+# Document representation extraction:      [Took ~ a day (?)]
+# This is the main part of the process, which pulls together the pipeline outputs and produces our docs
+# Add "--skip-done" to restart this partway.
+./run_py -m cam.whim.entity_narrative.chains.build_docs \
+    /local/scratch/mtw29/altavilla/tokenized/ \
+    /anfs/bigdisc/mtw29/chains/altavilla-fiction/coref/ \
+    /anfs/bigdisc/mtw29/chains/altavilla-fiction/candc/deps/ \
+    /anfs/bigdisc/mtw29/chains/altavilla-fiction/candc/tags/ \
+    /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs_raw/ --tarred
+
+
+# Tar output                                [Took a couple of hours]
+# Result of extraction is a big directory with a file per doc, not tarred
+# Group together into tar archives each with (up to) 1000 files
+cd /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs_raw/
+current_archive_size=0
+current_archive_num=0
+current_archive=altavilla-$(printf "%03d" $current_archive_num).tar
+# Create the first archive
+tar -cf $current_archive --files-from=/dev/null
+for filename in $(find . -name "*.txt" | sed -e 's/^\.\///'); do
+    echo -n "."
+    # Add this file
+    tar --append -f $current_archive $filename
+    ((current_archive_size++))
+    # Check whether to move onto next archive
+    if [ "$current_archive_size" -ge "1000" ]; then
+        current_archive_size=0
+        ((current_archive_num++))
+        current_archive=altavilla-$(printf "%03d" $current_archive_num).tar
+        echo "Beginning new archive: $current_archive"
+        # Create new archive
+        tar --create -f $current_archive --files-from=/dev/null
+    fi
+done
+
+mkdir -p /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs_raw_tar/
+mv /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs_raw/*.tar /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs_raw_tar/
+
+
+# Index building:                           [Took 13:30]
+# This collects verb stats
+./run_py -m cam.whim.entity_narrative.chains.build_index /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs_raw_tar/ --tarred
+
+
+# Analyse index:
+# You may want to decide on the basis of the output of this step how rare a predicate needs to be to be filtered out
+./run_py -m cam.whim.entity_narrative.chains.filter_rare_events stats /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs_raw_tar/verbs.tar.index
+
+# Filter very rare verbs (those with <100 occurrences):  [Took ]
+# This is rather conservative: there are still a lot of verbs that are clearly rubbish with counts of 100
+./run_py -m cam.whim.entity_narrative.chains.filter_rare_events filter /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs_raw_tar/verbs.tar.index 100 /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs_filtered/
+
+
+# Generate document lists for dev and test sets
+# First get all the document filenames from all the tarballs
+rm -f /local/scratch/mtw29/altavilla_docs.txt; for f in $(ls /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs_filtered/*.tar); do tar -tf $f >>/local/scratch/mtw29/altavilla_docs.txt; echo $f; done
+mkdir -p /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/sets
+# Split up the doc list randomly
+./run_py -m cam.whim.data.random_split /local/scratch/mtw29/altavilla_docs.txt /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/sets/altavilla
+# Now split the actual sets
+./run_py -m cam.whim.data.split_sets \
+    /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs_filtered/ \
+    /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/sets/altavilla_dev.txt \
+    /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/sets/altavilla_test.txt \
+    /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/
+
+# Build indexes for filtered sets:
+./run_py -m cam.whim.entity_narrative.chains.build_index /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/test/ --tarred
+./run_py -m cam.whim.entity_narrative.chains.build_index /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/dev/ --tarred
+./run_py -m cam.whim.entity_narrative.chains.build_index /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/training/ --tarred
+
+# Rearrange a bit
+cd /anfs/bigdisc/mtw29/chains/altavilla-fiction
+mv rich_docs_filtered/ rich_docs/all
+mv rich_docs_raw_tar/ rich_docs/unfiltered
+
+# Make some smaller training sets
+cd rich_docs
+mkdir small_training
+cp training/altavilla-00[0123].tar small_training/
+mkdir medium_training
+cp training/altavilla-0[012]?.tar medium_training/
+Indexes for the tars should get generated the first time you use them for training/eval.
+
+# Build stop-predicate list
+# Count predicates:
+./run_py -m cam.whim.entity_narrative.chains.count_predicates /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/training/ --tarred
+# Output stats about counts:
+./run_py -m cam.whim.entity_narrative.chains.stoplist stats /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/training/predicate_counts
+# Decide on N (I used 10) and create stoplist:
+./run_py -m cam.whim.entity_narrative.chains.stoplist build /anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/training/predicate_counts 10 >/anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/stoplist.txt

@@ -1,0 +1,5 @@
+I've not included in the release a file here called gigaword_duplicates.gz, which is a 
+list of the duplicate documents in Gigaword. I obtained this originally from Nate 
+Chambers, so contact either me or him if you need it, or take a look at Nate's code to 
+see how he generated it.
+Mark Granroth-Wilding

@@ -1,0 +1,14 @@
+MODEL_TYPE=arg-comp
+MODEL_NAME=altavilla-2layer
+
+INPUT=/anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/training/
+
+TRAINING_OPTIONS="\
+    altavilla-300 \
+    --layer-sizes 600,300 \
+    --iterations 2 \
+    --corruption 0.3 \
+    --lr 0.1 \
+    --regularization 0.001 \
+    --tuning-iterations 0 \
+    --scale-word2vec"

@@ -1,0 +1,71 @@
+Pipeline for extracting rich event representation for Gigaword docs
+===================================================================
+
+Most steps of this pipeline take a long time to run, so instead of a script, below is a list of the commands
+that should be run one by one to prepare the dataset.
+
+
+# Extract tokenized texts to scratch dir:  [Took 2 mins]
+tar -xzf tokenized.tar.gz -C /local/scratch/mtw29/gigaword/tokenized/
+
+# Document representation extraction:      [Took 10:30]
+# Add "--skip-done" to restart this partway.
+./run_py -m cam.whim.entity_narrative.chains.build_docs /local/scratch/mtw29/gigaword/tokenized/ /anfs/bigdisc/mtw29/chains/gigaword-nyt/coref/ /anfs/bigdisc/mtw29/chains/gigaword-nyt/candc/deps/ /anfs/bigdisc/mtw29/chains/gigaword-nyt/candc/tags/ /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_raw/ --tarred
+
+# Result is not tarred. Tar each year:
+for year in {1994..2004}; do
+  cd /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_raw/$year
+  find . -name "*.txt" | sed -e 's/^\.\///' | tar -cf nyt_$year.tar --files-from -
+  rm *.txt
+done
+
+# Splitting years into months:
+./run_py -m cam.whim.data.retar_gigaword /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_raw/ /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_raw_months/
+
+# Index building:                           [Took 3h]
+./run_py -m cam.whim.entity_narrative.chains.build_index /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_raw_months/ --tarred
+
+# Analyse index:
+# You may want to decide on the basis of the output of this step how rare a predicate needs to be to be filtered out
+./run_py -m cam.whim.entity_narrative.chains.filter_rare_events stats /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_raw_months/verbs.tar.index
+
+# Filter very rare predicates (those with <100 occurrences):  [Took ~4:20h]
+./run_py -m cam.whim.entity_narrative.chains.filter_rare_events filter /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_raw_months/verbs.tar.index 100 /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_filtered/
+
+# Split sets:                               [Took ~1-2h]
+# This gives you training, dev and test sets
+./run_py -m whim_common.data.split_sets \
+    /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_filtered/ \
+    /local/scratch/mtw29/gigaword/sets/gigaword_dev.txt \
+    /local/scratch/mtw29/gigaword/sets/gigaword_test.txt \
+    /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_filtered_sets/
+
+# Build index for filtered set:
+./run_py -m cam.whim.entity_narrative.chains.build_index /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_filtered_sets/training/ --tarred
+./run_py -m cam.whim.entity_narrative.chains.build_index /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_filtered_sets/test/ --tarred
+./run_py -m cam.whim.entity_narrative.chains.build_index /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs_filtered_sets/dev/ --tarred
+
+# Rearrange directories
+cd /anfs/bigdisc/mtw29/chains/gigaword-nyt
+mkdir rich_docs
+mv rich_docs_filtered_sets/* rich_docs/
+rmdir rich_docs_filtered_sets
+mv rich_docs_filtered rich_docs/all
+mv rich_docs_raw_months rich_docs/unfiltered
+rm -rf rich_docs_raw
+
+# Make some smaller training sets
+cd rich_docs
+mkdir small_training
+cp training/nyt_19940[78]* small_training/
+mkdir medium_training
+cp training/nyt_199[45]* medium_training/
+Indexes for the tars should get generated the first time you use them for training/eval.
+
+# Build stop-predicate list
+# Count predicates:
+./run_py -m cam.whim.entity_narrative.chains.count_predicates /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs/small_training/ --tarred
+# Output stats about counts:
+./run_py -m cam.whim.entity_narrative.chains.stoplist stats /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs/small_training/predicate_counts
+# Decide on N and create stoplist (e.g. 10):
+./run_py -m cam.whim.entity_narrative.chains.stoplist build /anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs/small_training/predicate_counts 10

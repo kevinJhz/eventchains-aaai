@@ -1,0 +1,10 @@
+MODEL_TYPE=word2vec
+MODEL_NAME=gigaword-300-full-with-args-trans
+
+INPUT=/anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs/training/
+
+TRAINING_OPTIONS="\
+    --vector-size 300 \
+    --window 15 \
+    --with-args \
+    --trans"

@@ -1,0 +1,20 @@
+MODEL_TYPE=arg-comp
+MODEL_NAME=gigaword-full-3layer
+
+INPUT=/anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs/training/
+
+TRAINING_OPTIONS="\
+    gigaword-300-full-with-args2 \
+    --layer-sizes 900,600,300 \
+    --iterations 2 \
+    --corruption 0.3 \
+    --lr 0.1 \
+    --regularization 0.001 \
+    --tuning-iterations 2 \
+    --tuning-lr 0.05 \
+    --tuning-min-lr 0.01 \
+    --tuning-regularization 0.01 \
+    --update-input-vecs \
+    --tuning-objective cosine \
+    --pos-neg-diff \
+    --scale-word2vec"

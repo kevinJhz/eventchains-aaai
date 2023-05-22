@@ -1,0 +1,6 @@
+MODEL_TYPE=bigram
+MODEL_NAME=gigaword
+
+INPUT=/anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs/medium_training/
+
+TRAINING_OPTIONS=""

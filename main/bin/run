@@ -1,0 +1,9 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Directory where the compiled code lives
+BUILD_DIR=$DIR/../build
+# Use the production version of the code if the flag is set
+[ $EC_PRODUCTION ] && BUILD_DIR=$DIR/../production/build
+java -classpath $BUILD_DIR:$DIR/../src/main/java:$DIR/../lib/* \
+ -DWNSEARCHDIR=$DIR/../models/wordnet-dict \
+ $*

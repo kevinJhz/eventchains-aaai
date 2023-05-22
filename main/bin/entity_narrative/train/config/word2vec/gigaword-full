@@ -1,0 +1,9 @@
+MODEL_TYPE=word2vec
+MODEL_NAME=gigaword-full
+
+INPUT=/anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs/training/
+
+TRAINING_OPTIONS="
+    --vector-size 300 \
+    --window 5 \
+    --adj"

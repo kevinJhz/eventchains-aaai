@@ -1,0 +1,10 @@
+MODEL_TYPE=dist-vecs
+MODEL_NAME=gigaword-full-ppmi
+
+INPUT=/anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs/training/
+
+TRAINING_OPTIONS="\
+    --event-threshold 100 \
+    --pair-threshold 10 \
+    --ppmi \
+    --svd 300"

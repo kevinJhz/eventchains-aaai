@@ -1,0 +1,14 @@
+MODEL_TYPE=event-comp
+MODEL_NAME=altavilla-2ae-2
+
+INPUT=/anfs/bigdisc/mtw29/chains/altavilla-fiction/rich_docs/training/
+
+TRAINING_OPTIONS="\
+    altavilla-2layer \
+    --layer-sizes 400,200 \
+    --random-init \
+    --tuning-iterations 3 \
+    --tuning-lr 0.1 \
+    --tuning-min-lr 0.01 \
+    --tuning-regularization 0.01 \
+    --event-tuning-iterations 8"

@@ -1,0 +1,8 @@
+MODEL_TYPE=candj
+MODEL_NAME=gigaword-full
+
+INPUT=/anfs/bigdisc/mtw29/chains/gigaword-nyt/rich_docs/training/
+
+TRAINING_OPTIONS="\
+    --event-threshold 20 \
+    --pair-threshold 20"

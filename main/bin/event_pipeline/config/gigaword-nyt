@@ -1,0 +1,12 @@
+# Config file for event chains pipeline
+
+PIPELINE_NAME=gigaword-nyt
+HUMAN_READABLE_NAME="Gigaword, NYT"
+
+# Point to a script that will extract the input text for us
+INPUT_EXTRACTOR=1-parse/preprocess/extract_gigaword.sh
+# This is specific to Gigaword, used by the input extractor
+GIGAWORD_FILES=(/usr/groups/corpora-cds/gigaword_eng/data/nyt_eng/*.gz)
+
+# Number of processes to use in any stage
+PROCESSES=12
