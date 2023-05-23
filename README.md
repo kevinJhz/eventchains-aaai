@@ -41,24 +41,29 @@ make
 ```
 ### 4. 上传数据
 #### 4.1 原始数据
+原始数据一般是若干 .txt 结尾的文本语料，打包成一个 .gz 压缩文件。
 
-一个示例文档是
+一个语料库示例是
  [LDC2003T05.gz](https://catalog.ldc.upenn.edu/desc/addenda/LDC2003T05.gz)
-。
+，由 5973 篇新闻组成。
 
 我们通常在`main/data/`下创建一个子目录，用于放置原始数据(如 `main/data/LDC-samples/LDC2003T05.gz`，`LDC-samples`是我们创建的目录)。
 
-要求在配置文件中指定该子目录，见 [5.1](#5.1)
+在配置文件中指定该子目录路径，见 [5.1](#5.1)
 
-#### 4.2 上传停用词
+#### 4.2 黑名单
+在若干篇新闻组成的语料库中，难免有一些主题无关的篇章，手动删除它们很费力，更方便的做法是将要去除的文档名写入一个黑名单，脚本根据该黑名单过滤掉对应的文档。
 
-Blacklist file for document names to skip
+反之，如果没有要过滤的文档，只需放一个名为 `gagaword_duplicates.gz` 的空文件。
 
-`main/bin/event_pipeline/1-parse/preprocess/gigaword/gigaword_duplicates.gz`
+**黑名单的默认路径**是 `main/bin/event_pipeline/1-parse/preprocess/gigaword/gigaword_duplicates.gz`，在启动 stage 1 确保该路径下存在对应的`gigaword_duplicates.gz`文件。
+
+也可以在[extract_gigaword.sh](https://github.com/kevinJhz/eventchains-aaai/blob/main/main/bin/event_pipeline/1-parse/preprocess/extract_gigaword.sh)
+的第 12 行修改黑名单的路径。
 
 ### 5. 一些需要手动配置的地方
 
-#### 5.1 gigaword-nyt 指定原始数据路径markdown
+#### 5.1 gigaword-nyt 指定原始数据路径
 <a name="5.1"></a>
 ```
 # eventchains-aaai/main/

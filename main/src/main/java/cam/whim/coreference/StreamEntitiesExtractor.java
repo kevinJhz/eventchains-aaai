@@ -10,9 +10,11 @@ import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 /**
  * Extract all entity mention sets from many documents in sequence, to avoid having to reload
@@ -21,6 +23,14 @@ import java.util.ListIterator;
  */
 public class StreamEntitiesExtractor {
     public static void main(String[] args) {
+        if (args.length > 0) {
+            for (String arg : args) {
+                System.out.println(arg);
+            }
+        } else {
+            System.out.println("No arguments provided.");
+        }
+
         ArgumentParser parser = ArgumentParsers.newArgumentParser("StreamChainsExtractor");
         parser.description("Extract all entity mention sets from many documents in sequence, to avoid having to reload " +
                 "the models for each document. Directories where input files are found are specified as arguments " +
@@ -47,16 +57,43 @@ public class StreamEntitiesExtractor {
             System.exit(1);
         }
 
-        String modelsDirName = opts.getString("models-dir");
-        String tagDirName = opts.getString("tag-dir");
-        String dependencyDirName = opts.getString("dependency-dir");
-        String parseDirName = opts.getString("parse-dir");
-        String outputDirName = opts.getString("output-dir");
-        boolean singleMentions = opts.getBoolean("single_mentions");
-        boolean silent = opts.getBoolean("silent");
-        String progressString = opts.getString("progress");
+
+        System.out.println("*** Traversing keys and values in opts ***" );
+        for (Field field : opts.getClass().getFields()) {
+            String key = field.getName();
+            try {
+                Object value = field.get(opts);
+                System.out.println(key + ": " + value);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("*** Traversing done ***" );
+
+//        String modelsDirName = opts.getString("models-dir");
+//        String tagDirName = opts.getString("tag-dir");
+//        String dependencyDirName = opts.getString("dependency-dir");
+//        String parseDirName = opts.getString("parse-dir");
+//        String outputDirName = opts.getString("output-dir");
+//        boolean singleMentions = opts.getBoolean("single_mentions");
+//        boolean silent = opts.getBoolean("silent");
+//        String progressString = opts.getString("progress");
+
+        String projectPath = "/root/eventchains";
+        String baseFileName="LDC2003T05";
+
+        String modelsDirName =      "../../models/opennlp";
+        String tagDirName =         projectPath + "/main/chains/gigaword-nyt/tmp/coref/pos/" + baseFileName;
+        String dependencyDirName =  projectPath + "/main/chains/gigaword-nyt/tmp/coref/deps/" + baseFileName;
+        String parseDirName =       projectPath + "/main/chains/gigaword-nyt/tmp/coref/parse/" + baseFileName;
+        String outputDirName =      projectPath + "/main/chains/gigaword-nyt/tmp/coref/output/" + baseFileName;
+
+        boolean singleMentions = false;
+        boolean silent = true;
+        String progressString = ".";
 
         // Load models
+        System.out.println("models-dir is " + modelsDirName );
         File modelsDir = new File(modelsDirName);
         // Load a coref model
         Coreference coreference = null;

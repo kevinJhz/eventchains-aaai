@@ -11,7 +11,7 @@ endif
 all :
 	$(MAKE) opennlp
 	$(MAKE) wordnet-dict
-	$(MAKE) TBAQ-cleaned
+# 	$(MAKE) TBAQ-cleaned
 	$(MAKE) en-sent.bin
 	$(MAKE) en-token.bin
 

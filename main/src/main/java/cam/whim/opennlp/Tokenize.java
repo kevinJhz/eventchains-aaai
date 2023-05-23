@@ -37,10 +37,24 @@ public class Tokenize {
             System.exit(1);
         }
 
-        String sentModelFilename = opts.getString("sent-model");
-        String tokModelFilename = opts.getString("tok-model");
-        String progress = opts.getString("progress");
+//       String sentModelFilename = opts.getString("sent-model");
+//       String tokModelFilename = opts.getString("tok-model");
+//       String progress = opts.getString("progress");
 
+        String projectPath = "/root/eventchains";
+        String sentModelFilename = projectPath + "/main/models/en-sent.bin";
+        String tokModelFilename = projectPath + "/main/models/en-token.bin";
+
+        String progress = opts.getString("progress");
+        System.out.println("sentModelFilename is " + sentModelFilename);
+        System.out.println("tokModelFilename is " + tokModelFilename);
+        if (args.length == 0) {
+            System.out.println("args list is null ");
+        } else {
+            for (String arg : args) {
+                System.out.println(arg);
+            }
+        }
         // Load models
         SentenceModel sentenceModel = new SentenceModelLoader().load(new File(sentModelFilename));
         SentenceDetectorME sentenceDetector = new SentenceDetectorME(sentenceModel);
