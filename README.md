@@ -197,16 +197,6 @@ conda activate py27
 ./event_pipeline/pipeline.sh gigaword-nyt 5
 ```
 
-
-# 训练模型
-python train.py
-
-# 测试模型 
-python test.py
-
-# 使用模型进行预测 
-python use.py
-添加开发环境的安装与配置步骤,让其他开发者可以轻松运行您的项目。
 ## 项目结构
 ```angular2html
 .
