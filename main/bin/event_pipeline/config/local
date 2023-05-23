@@ -2,8 +2,10 @@
 
 # This should point to a directory on a large disk used for temporary storage
 # Best if this can be read/written fast -- i.e. local disk (not networked)
-LOCAL_WORKING_DIR=/local/scratch/mtw29/chains
+# 临时目录
+LOCAL_WORKING_DIR=/root/eventchains-aaai/main/chains
 
 # This points to the directory where the final output of the process is stored
 # It also needs to have plenty of space, but won't be accessed many times, so needn't be super-fast
-LOCAL_FINAL_DIR=/anfs/bigdisc/mtw29/chains
+# 最终 output 存放目录
+LOCAL_FINAL_DIR=/root/eventchains-aaai/main/final-eventchains

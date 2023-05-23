@@ -1,12 +1,15 @@
 # Config file for event chains pipeline
 
+# 定义任务名,此处为gigaword-nyt
 PIPELINE_NAME=gigaword-nyt
 HUMAN_READABLE_NAME="Gigaword, NYT"
 
 # Point to a script that will extract the input text for us
 INPUT_EXTRACTOR=1-parse/preprocess/extract_gigaword.sh
+
 # This is specific to Gigaword, used by the input extractor
-GIGAWORD_FILES=(/usr/groups/corpora-cds/gigaword_eng/data/nyt_eng/*.gz)
+# 指定原始数据存放位置，使用绝对路径。此处数据集的位置 /root/eventchains-aaai/main/data/LDC-samples/LDC2003T05.gz
+GIGAWORD_FILES=(/root/eventchains-aaai/main/data/LDC-samples/*.gz)
 
 # Number of processes to use in any stage
 PROCESSES=12

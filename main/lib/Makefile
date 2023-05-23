@@ -53,13 +53,13 @@ jwnl-1.3.3.jar :
 
 apache-opennlp-1.5.3-bin.tar.gz :
 	# Fetch OpenNlp archive
-	$(FETCH) http://apache.mesi.com.ar//opennlp/opennlp-1.5.3/apache-opennlp-1.5.3-bin.tar.gz
+	$(FETCH) https://archive.apache.org/dist/opennlp/opennlp-1.5.3/apache-opennlp-1.5.3-bin.tar.gz
 
 argparse4j.jar :
 	$(FETCH_STDOUT) http://sourceforge.net/projects/argparse4j/files/latest/download?source=files >argparse4j.jar
 
 ###################################
-	
+
 stanford-parser :
 	$(MAKE) stanford-parser-full-2014-01-04.zip
 	unzip stanford-parser-full-2014-01-04.zip
@@ -69,15 +69,15 @@ stanford-parser :
 stanford-parser-full-2014-01-04.zip :
 	$(FETCH) http://nlp.stanford.edu/software/stanford-parser-full-2014-01-04.zip
 
-stanford-tagger : 
+stanford-tagger :
 	$(MAKE) stanford-postagger-2014-01-04.zip
 	unzip stanford-postagger-2014-01-04.zip
 	mv stanford-postagger-2014-01-04 stanford-tagger
 	rm stanford-postagger-2014-01-04.zip
 
 stanford-postagger-2014-01-04.zip :
-	$(FETCH) http://nlp.stanford.edu/downloads/stanford-postagger-2014-01-04.zip
-	
+	$(FETCH) https://nlp.stanford.edu/software/stanford-postagger-2014-01-04.zip
+
 ####################################
 
 guava.jar :
@@ -113,8 +113,7 @@ liblinear-java-1.95.jar :
 
 stemming :
     $(FETCH) https://pypi.python.org/packages/source/s/stemming/stemming-1.0.tar.gz
-    tar -xzf stemming-1.0.tar.gz stemming-1.0/stemming/
-    mv stemming-1.0/stemming .
-    rmdir stemming-1.0
-    rm stemming-1.0.tar.gz 
-   
+	tar -xzf stemming-1.0.tar.gz stemming-1.0/stemming/
+	mv stemming-1.0/stemming .
+	rmdir stemming-1.0
+	rm stemming-1.0.tar.gz
